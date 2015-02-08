@@ -1,6 +1,5 @@
 package ovftool
-
-import (
+import (	
 	"bytes"
 	"errors"
 	"fmt"
@@ -105,7 +104,7 @@ func (p *OVFPostProcessor) stripDrives(vmx string) error {
 }
 
 func (p *OVFPostProcessor) PostProcess(ui packer.Ui, artifact packer.Artifact) (packer.Artifact, bool, error) {
-	if artifact.BuilderId() != "mitchellh.vmware" {
+	if artifact.BuilderId() != "mitchellh.vmware-esx" || artifact.BuilderId() != "mitchellh.vmware" {
 		return nil, false, fmt.Errorf("ovftool post-processor can only be used on VMware boxes: %s", artifact.BuilderId())
 	}
 
@@ -113,15 +112,17 @@ func (p *OVFPostProcessor) PostProcess(ui packer.Ui, artifact packer.Artifact) (
 	for _, path := range artifact.Files() {
 		if strings.HasSuffix(path, ".vmx") {
 			vmx = path
-		}
+			ui.Message(fmt.Sprintf("processing vmx at: %s", vmx))
+			}
 	}
+
 	if vmx == "" {
 		return nil, false, fmt.Errorf("VMX file could not be located.")
 	}
 
 	// Strip DVD and floppy drives from the VMX
 	if err := p.stripDrives(vmx); err != nil {
-		return nil, false, fmt.Errorf("Couldn't strip floppy/DVD drives from VMX")
+		return nil, false, fmt.Errorf("Couldn't strip floppy/DVD drives from VMX %g", err)
 	}
 
 	targetPath, err := p.cfg.tpl.Process(p.cfg.TargetPath, &OutputPathTemplate{
