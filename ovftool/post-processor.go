@@ -104,7 +104,8 @@ func (p *OVFPostProcessor) stripDrives(vmx string) error {
 }
 
 func (p *OVFPostProcessor) PostProcess(ui packer.Ui, artifact packer.Artifact) (packer.Artifact, bool, error) {
-	if artifact.BuilderId() != "mitchellh.vmware-esx" || artifact.BuilderId() != "mitchellh.vmware" {
+	 if artifact.BuilderId() != "mitchellh.vmware-esx" {
+		ui.Message(fmt.Sprintf("checking if this is a Vmware builder : %s", artifact.BuilderId()))
 		return nil, false, fmt.Errorf("ovftool post-processor can only be used on VMware boxes: %s", artifact.BuilderId())
 	}
 
